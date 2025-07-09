@@ -27,7 +27,7 @@ class _LesionCardState extends State<LesionCard> {
     "99%",
   ];
   final List<String> dominanceOptions = ["Right", "Left"];
-  final List<String> CoronarySegments = [
+  final List<String> coronarySegments = [
     "RCA Proximal",
     "RCA Mid",
     "RCA Distal",
@@ -72,7 +72,11 @@ class _LesionCardState extends State<LesionCard> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 3,
+      shape: RoundedRectangleBorder(
+        side: BorderSide(color: Colors.grey, width: 1.0),
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+      elevation: 0,
       margin: const EdgeInsets.symmetric(vertical: 6),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -81,14 +85,20 @@ class _LesionCardState extends State<LesionCard> {
           children: [
             Text(
               "Lesion ${widget.index + 1}",
-              style: Theme.of(context).textTheme.titleMedium,
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
 
             // Stenosis (%)
             TextFormField(
               controller: stenosisController,
-              decoration: const InputDecoration(labelText: "Stenosis (%)"),
+              decoration: const InputDecoration(
+                labelText: "Stenosis (%)",
+                hintText: "Enter stenosis percentage",
+                border: OutlineInputBorder(),
+              ),
               keyboardType: TextInputType.number,
               onChanged: (_) {
                 setState(() {
@@ -104,7 +114,12 @@ class _LesionCardState extends State<LesionCard> {
             const SizedBox(height: 16),
 
             // Collaterals
-            const Text("Collaterals"),
+            Text(
+              "Collaterals",
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+            ),
             const SizedBox(height: 8),
             IgnorePointer(
               ignoring: getStenosisValue() < 99,
@@ -113,6 +128,9 @@ class _LesionCardState extends State<LesionCard> {
                 child: DropdownButtonFormField<String>(
                   value: collaterals,
                   isExpanded: true,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                  ),
                   items:
                       collateralsOptions.map((String value) {
                         return DropdownMenuItem<String>(
@@ -129,14 +147,18 @@ class _LesionCardState extends State<LesionCard> {
                       }
                     });
                   },
-                  decoration: const InputDecoration(),
                 ),
               ),
             ),
             const SizedBox(height: 16),
 
             // Source Vessel Stenosis (%)
-            const Text("Source Vessel Stenosis (%)"),
+            Text(
+              "Source Vessel Stenosis (%)",
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+            ),
             const SizedBox(height: 8),
             IgnorePointer(
               ignoring: collaterals != "Yes" || !isStenosis100,
@@ -145,6 +167,9 @@ class _LesionCardState extends State<LesionCard> {
                 child: DropdownButtonFormField<String>(
                   value: sourceVesselStenosis,
                   isExpanded: true,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                  ),
                   items:
                       sourceVesselOptions.map((String value) {
                         return DropdownMenuItem<String>(
@@ -158,20 +183,25 @@ class _LesionCardState extends State<LesionCard> {
                       sourceVesselStenosis = value;
                     });
                   },
-                  decoration: const InputDecoration(),
                 ),
               ),
             ),
             const SizedBox(height: 16),
 
             // Coronary Segment
-            const Text("Coronary Segment"),
+            Text(
+              "Coronary Segment",
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+            ),
             const SizedBox(height: 8),
             DropdownButtonFormField<String>(
               isExpanded: true,
+              decoration: const InputDecoration(border: OutlineInputBorder()),
               value: "RCA Proximal",
               items:
-                  CoronarySegments.map((String value) {
+                  coronarySegments.map((String value) {
                     return DropdownMenuItem<String>(
                       value: value,
                       enabled: value != "N/A",
@@ -179,16 +209,21 @@ class _LesionCardState extends State<LesionCard> {
                     );
                   }).toList(),
               onChanged: (_) {},
-              decoration: const InputDecoration(),
             ),
             const SizedBox(height: 16),
 
             // Dominance
-            const Text("Dominance"),
+            Text(
+              "Dominance",
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+            ),
             const SizedBox(height: 8),
             DropdownButtonFormField<String>(
               value: dominance,
               isExpanded: true,
+              decoration: const InputDecoration(border: OutlineInputBorder()),
               items:
                   dominanceOptions.map((String value) {
                     return DropdownMenuItem<String>(
@@ -201,7 +236,6 @@ class _LesionCardState extends State<LesionCard> {
                   dominance = value;
                 });
               },
-              decoration: const InputDecoration(),
             ),
           ],
         ),

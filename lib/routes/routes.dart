@@ -1,3 +1,4 @@
+import 'package:gensinicalc/features/gensini_calculator/presentation/pages/result_page.dart';
 import 'package:gensinicalc/features/gensini_calculator/presentation/pages/welcome_page.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gensinicalc/features/gensini_calculator/presentation/pages/calculator_page.dart';
@@ -5,6 +6,7 @@ import 'package:gensinicalc/features/gensini_calculator/presentation/pages/calcu
 class AppRoutes {
   static const String calculator = '/calculator';
   static const String welcomePage = '/welcome';
+  static const String resultPage = '/result';
 
   static final GoRouter router = GoRouter(
     initialLocation: welcomePage,
@@ -19,6 +21,11 @@ class AppRoutes {
         name: 'calculator',
         path: calculator,
         builder: (context, state) => const CalculatorPage(),
+      ),
+      GoRoute(
+        name: 'resultPage',
+        path: resultPage,
+        builder: (context, state) => const ResultPage(),
       ),
     ],
   );

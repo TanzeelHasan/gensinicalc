@@ -15,6 +15,31 @@ class _LesionCardState extends State<LesionCard> {
   String? sourceVesselStenosis = "N/A";
   String? dominance = "Right";
 
+  double severityScore = 0;
+  double multiplicationFactor = 0;
+  double lesionScore = 0;
+
+  final Map<String, Map<String, double>> multiplicationFactors = {
+    "RCA Proximal": {"Right": 1, "Left": 1},
+    "RCA Mid": {"Right": 1, "Left": 1},
+    "RCA Distal": {"Right": 1, "Left": 1},
+    "PDA": {"Right": 1, "Left": 1},
+    "PLB": {"Right": 0.5, "Left": 0.5},
+    "Left Main": {"Right": 5, "Left": 5},
+    "LAD Proximal": {"Right": 2.5, "Left": 2.5},
+    "LAD Mid": {"Right": 1.5, "Left": 1.5},
+    "LAD Apical": {"Right": 1, "Left": 1},
+    "1st Diagonal": {"Right": 1, "Left": 1},
+    "2nd Diagonal": {"Right": 0.5, "Left": 0.5},
+    "LCx Proximal": {"Right": 2.5, "Left": 3.5},
+    "LCx Mid": {
+      "Right": 1,
+      "Left": 2,
+    }, // Matches LCx Mid values from spreadsheet
+    "LCx Distal": {"Right": 1, "Left": 2},
+    "Obtuse Marginal": {"Right": 1, "Left": 1},
+  };
+
   // Dropdown options
   final List<String> collateralsOptions = ["Yes", "No", "N/A"];
   final List<String> sourceVesselOptions = [
@@ -67,6 +92,72 @@ class _LesionCardState extends State<LesionCard> {
     }
   }
 
+  void _calculateScores() {
+    final stenosis = getStenosisValue();
+    final collateralsValue = collaterals ?? "N/A";
+    final sourceVesselValue = sourceVesselStenosis ?? "N/A";
+    final dominanceValue = dominance ?? "Right";
+    final segment = coronarySegments;
+
+    if (stenosis < 99) {
+      collaterals = "N/A";
+      sourceVesselStenosis = "N/A";
+    } else if (collaterals != "Yes") {
+      sourceVesselStenosis = "N/A";
+    }
+
+    // Severity Score Calculation
+    severityScore = 0;
+    if (stenosis >= 1 && stenosis <= 25) {
+      severityScore = 1;
+    } else if (stenosis > 25 && stenosis <= 50) {
+      severityScore = 2;
+    } else if (stenosis > 50 && stenosis <= 75) {
+      severityScore = 4;
+    } else if (stenosis > 75 && stenosis <= 90) {
+      severityScore = 8;
+    } else if (stenosis > 90 && stenosis < 99) {
+      severityScore = 16;
+    } else if (stenosis == 99 && collateralsValue == "No") {
+      severityScore = 16;
+    } else if (stenosis == 99 && collateralsValue == "Yes") {
+      severityScore = 8;
+    } else if (stenosis == 100 && collateralsValue == "No") {
+      severityScore = 32;
+    } else if (stenosis == 100 && collateralsValue == "Yes") {
+      switch (sourceVesselValue) {
+        case "0%":
+          severityScore = 16;
+          break;
+        case "25%":
+          severityScore = 20;
+          break;
+        case "50%":
+          severityScore = 24;
+          break;
+        case "75%":
+          severityScore = 28;
+          break;
+        case "90%":
+          severityScore = 30;
+          break;
+        case "99%":
+          severityScore = 31;
+          break;
+        default:
+          severityScore = 0;
+      }
+    }
+
+    // Multiplication Factor
+    multiplicationFactor = multiplicationFactors[segment]?[dominanceValue] ?? 0;
+
+    // Lesion Score
+    lesionScore = severityScore * multiplicationFactor;
+
+    setState(() {});
+  }
+
   bool get isStenosis100 => getStenosisValue() >= 100;
 
   @override
@@ -101,14 +192,7 @@ class _LesionCardState extends State<LesionCard> {
               ),
               keyboardType: TextInputType.number,
               onChanged: (_) {
-                setState(() {
-                  // Auto-lock Collaterals when Stenosis changes
-                  final stenosis = getStenosisValue();
-                  if (stenosis < 99) {
-                    collaterals = "N/A";
-                    sourceVesselStenosis = "N/A";
-                  }
-                });
+                _calculateScores();
               },
             ),
             const SizedBox(height: 16),
@@ -140,12 +224,7 @@ class _LesionCardState extends State<LesionCard> {
                         );
                       }).toList(),
                   onChanged: (value) {
-                    setState(() {
-                      collaterals = value;
-                      if (value != "Yes") {
-                        sourceVesselStenosis = "N/A";
-                      }
-                    });
+                    _calculateScores();
                   },
                 ),
               ),
@@ -179,9 +258,7 @@ class _LesionCardState extends State<LesionCard> {
                         );
                       }).toList(),
                   onChanged: (value) {
-                    setState(() {
-                      sourceVesselStenosis = value;
-                    });
+                    _calculateScores();
                   },
                 ),
               ),
@@ -208,7 +285,9 @@ class _LesionCardState extends State<LesionCard> {
                       child: Text(value),
                     );
                   }).toList(),
-              onChanged: (_) {},
+              onChanged: (_) {
+                _calculateScores();
+              },
             ),
             const SizedBox(height: 16),
 
@@ -232,10 +311,29 @@ class _LesionCardState extends State<LesionCard> {
                     );
                   }).toList(),
               onChanged: (value) {
-                setState(() {
-                  dominance = value;
-                });
+                _calculateScores();
               },
+            ),
+            const SizedBox(height: 20),
+            Text(
+              "Severity Score: $severityScore",
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              "Multiplication Factor: $multiplicationFactor",
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              "Lesion Score: $lesionScore",
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
           ],
         ),

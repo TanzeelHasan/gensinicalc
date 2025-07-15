@@ -14,7 +14,8 @@ class _LesionCardState extends State<LesionCard> {
   late TextEditingController stenosisController;
   String collaterals = "N/A";
   String sourceVesselStenosis = "N/A";
-  String? dominance = "Right";
+  String dominance = "Right";
+  String coronarySegment = "RCA Proximal";
 
   double severityScore = 0;
   double multiplicationFactor = 0;
@@ -42,23 +43,21 @@ class _LesionCardState extends State<LesionCard> {
     }
   }
 
-  void _calculateScores({
-    bool isSourceVesselChanged = false,
-    String value = "N/A",
-  }) {
+  void _calculateScores() {
     final stenosis = getStenosisValue();
-    final collateralsValue = collaterals;
-    final sourceVesselValue = sourceVesselStenosis;
-    final dominanceValue = dominance ?? "Right";
-    final segment = coronarySegments;
-
-    if (stenosis < 99) {
+     if (stenosis < 99) {
       collaterals = "N/A";
       sourceVesselStenosis = "N/A";
     } else if (collaterals != "Yes") {
       sourceVesselStenosis = "N/A";
     }
 
+    final collateralsValue = collaterals;
+    final sourceVesselValue = sourceVesselStenosis;
+    final dominanceValue = dominance;
+    final coronarySegmentValue = coronarySegment;
+
+   
     // Severity Score Calculation
     severityScore = 0;
     if (stenosis >= 1 && stenosis <= 25) {
@@ -103,7 +102,8 @@ class _LesionCardState extends State<LesionCard> {
     }
 
     // Multiplication Factor
-    multiplicationFactor = multiplicationFactors[segment]?[dominanceValue] ?? 0;
+    multiplicationFactor =
+        multiplicationFactors[coronarySegmentValue]?[dominanceValue] ?? 0;
 
     // Lesion Score
     lesionScore = severityScore * multiplicationFactor;
@@ -177,6 +177,7 @@ class _LesionCardState extends State<LesionCard> {
                         );
                       }).toList(),
                   onChanged: (value) {
+                    collaterals = value ?? "N/A";
                     _calculateScores();
                   },
                 ),
@@ -211,9 +212,8 @@ class _LesionCardState extends State<LesionCard> {
                         );
                       }).toList(),
                   onChanged: (value) {
-                    if (value != "N/A") {
-                      _calculateScores();
-                    }
+                    sourceVesselStenosis = value ?? "N/A";
+                    _calculateScores();
                   },
                 ),
               ),
@@ -231,7 +231,7 @@ class _LesionCardState extends State<LesionCard> {
             DropdownButtonFormField<String>(
               isExpanded: true,
               decoration: const InputDecoration(border: OutlineInputBorder()),
-              value: "RCA Proximal",
+              value: coronarySegment,
               items:
                   coronarySegments.map((String value) {
                     return DropdownMenuItem<String>(
@@ -240,7 +240,8 @@ class _LesionCardState extends State<LesionCard> {
                       child: Text(value),
                     );
                   }).toList(),
-              onChanged: (_) {
+              onChanged: (value) {
+                coronarySegment = value ?? "RCA Proximal";
                 _calculateScores();
               },
             ),
@@ -266,6 +267,7 @@ class _LesionCardState extends State<LesionCard> {
                     );
                   }).toList(),
               onChanged: (value) {
+                dominance = value ?? "Right";
                 _calculateScores();
               },
             ),

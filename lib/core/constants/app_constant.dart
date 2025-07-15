@@ -14,12 +14,10 @@
     "LCx Mid": {
       "Right": 1,
       "Left": 2,
-    }, // Matches LCx Mid values from spreadsheet
+    },
     "LCx Distal": {"Right": 1, "Left": 2},
     "Obtuse Marginal": {"Right": 1, "Left": 1},
   };
-
-  // Dropdown options
   final List<String> collateralsOptions = ["Yes", "No", "N/A"];
   final List<String> sourceVesselOptions = [
     "N/A",

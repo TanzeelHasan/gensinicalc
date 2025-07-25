@@ -3,8 +3,9 @@ import 'package:gensinicalc/core/constants/app_constant.dart';
 
 class LesionCard extends StatefulWidget {
   final int index;
+  final ValueChanged<double> onScoreChanged;
 
-  const LesionCard({super.key, required this.index});
+  const LesionCard({super.key, required this.index, required this.onScoreChanged});
 
   @override
   State<LesionCard> createState() => _LesionCardState();
@@ -109,6 +110,7 @@ class _LesionCardState extends State<LesionCard> {
     lesionScore = severityScore * multiplicationFactor;
 
     setState(() {});
+    widget.onScoreChanged(lesionScore);
   }
 
   bool get isStenosis100 => getStenosisValue() >= 100;

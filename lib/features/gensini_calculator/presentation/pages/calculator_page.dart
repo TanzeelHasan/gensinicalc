@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gensinicalc/features/gensini_calculator/presentation/bloc/result_bloc/result_bloc.dart';
 import 'package:gensinicalc/features/gensini_calculator/presentation/widgets/lesion_card.dart';
 import 'package:gensinicalc/routes/routes.dart';
 import 'package:go_router/go_router.dart';
@@ -13,6 +15,7 @@ class CalculatorPage extends StatefulWidget {
 class _CalculatorPageState extends State<CalculatorPage> {
   int lesionCount = 0;
   List<int> lesions = [];
+  final Map<int, double> lesionScores = {};
 
   void addLesion() {
     setState(() {
@@ -38,7 +41,12 @@ class _CalculatorPageState extends State<CalculatorPage> {
           itemBuilder: (context, index) {
             if (index < lesions.length) {
               // Regular lesion card
-              return LesionCard(index: lesions[index]);
+              return LesionCard(
+                index: lesions[index],
+                onScoreChanged: (score) {
+                  lesionScores[lesions[index]] = score;
+                },
+              );
             } else {
               // Add button at the end
               return Padding(
@@ -65,6 +73,11 @@ class _CalculatorPageState extends State<CalculatorPage> {
         padding: const EdgeInsets.symmetric(horizontal: 20.0),
         child: ElevatedButton(
           onPressed: () {
+            final bloc = context.read<ResultBloc>();
+            lesionScores.values.forEach((score) {
+              bloc.add(AddLesionScoreEvent(score));
+            });
+            bloc.add(CalculateTotalEvent());
             context.pushReplacement(AppRoutes.resultPage);
           },
           style: ElevatedButton.styleFrom(

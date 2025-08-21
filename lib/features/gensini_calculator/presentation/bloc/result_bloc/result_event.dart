@@ -9,3 +9,4 @@ class AddLesionScoreEvent extends ResultEvent {
 
 class CalculateTotalEvent extends ResultEvent {}
 
+class ResetScoreEvent extends ResultEvent {}

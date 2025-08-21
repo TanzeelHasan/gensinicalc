@@ -15,5 +15,9 @@ class ResultBloc extends Bloc<ResultEvent, ResultState> {
       final total = state.lesionScores.reduce((a, b) => a + b);
       emit(state.copyWith(totalScore: total));
     });
+    on<ResetScoreEvent>((event, emit) {
+      final total = 0.0;
+      emit(state.copyWith(totalScore: total,lesionScores: [],));
+    });
   }
 }
